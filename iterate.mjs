@@ -5,7 +5,7 @@
  * @param {Object} filter - Volitelný parametr obsahující popisovač vlastností. 
  * @returns {Iterator} Iterátor dostupných vlastností
  */
-export function* iterateProperties(obj, filter) {
+export function*  iterateProperties(obj, filter) {
     for (let o of getPrototypeChain(obj)){
         for (let prop of Object.getOwnPropertyNames(o)){
             if (!filter || isValid(o, prop, filter)){
@@ -21,6 +21,7 @@ export function* iterateProperties(obj, filter) {
  * @returns {Array} Řetězec prototypů
  */
 function getPrototypeChain(obj){
+    if (!obj) return []
     let prototypes = []
     do{
         prototypes.push(obj)
