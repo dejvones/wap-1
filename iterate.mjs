@@ -6,6 +6,8 @@
  * @returns {Iterator} Iterátor dostupných vlastností
  */
 export function*  iterateProperties(obj, filter) {
+    filter = filter ? checkFilter(filter) : undefined;
+
     for (let o of getPrototypeChain(obj)){
         for (let prop of Object.getOwnPropertyNames(o)){
             if (!filter || isValid(o, prop, filter)){
@@ -21,13 +23,11 @@ export function*  iterateProperties(obj, filter) {
  * @returns {Array} Řetězec prototypů
  */
 function getPrototypeChain(obj){
-    if (!obj) return []
-    let prototypes = []
-    do{
-        prototypes.push(obj)
-        obj = Object.getPrototypeOf(obj)
-    } while(obj)
-    return prototypes.reverse()
+    let prototypes = [];
+    for(;obj; obj = Object.getPrototypeOf(obj)){
+        prototypes.push(obj);
+    }
+    return prototypes.reverse();
 }
 
 /**
@@ -38,10 +38,20 @@ function getPrototypeChain(obj){
  * @returns {Boolean} V případě, že vlastnost odpovídá filtru, je vrácena hodnota True. Jinak False.
  */
 function isValid(obj, prop, filter){
-    let descs = Object.getOwnPropertyDescriptor(obj, prop);
-    for (let desc in filter){
-        if (descs[desc] !== filter[desc])
-            return false;
+    let objectDescs = Object.getOwnPropertyDescriptor(obj, prop);
+    for (let filterDesc in filter){
+        if (objectDescs[filterDesc] !== filter[filterDesc])
+            return false; 
     }
     return true;
+}
+
+/**
+ * Funkce, která odstraní z objektu filtrů všechny vlastnosti s hodnotou undefined
+ * @param {Object} filter - Povinný parametr obsahujicí filtr popisovačů vlastností.
+ * @returns {Object} Upravený filter, bez vlastností s hodnotou undefined
+ */
+function checkFilter(filter){
+    Object.keys(filter).forEach(key => filter[key] === undefined && delete filter[key]);
+    return filter;
 }
