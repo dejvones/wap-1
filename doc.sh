@@ -1,3 +1,3 @@
 #!/bin/bash
-npm install --save-dev jsdoc
-jsdoc -c jsdoc.json -d doc
+npm install --save-dev
+jsdoc --readme README.md -c jsdoc.json -d doc

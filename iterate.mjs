@@ -1,3 +1,8 @@
+/**
+ * @file Knihovna, která generuje názvy vlastností pro předaný objekt a jeho řetězec prototypů.
+ * @author David Vlasak (xvlasa16)
+ */
+
 'use strict'
 /**
  * Funkce generující názvy vlastností dostupných pro předaný objekt a jeho řetězec prototypů.
@@ -6,13 +11,15 @@
  * @returns {Iterator} Iterátor dostupných vlastností
  */
 export function*  iterateProperties(obj, filter) {
-    filter = filter ? checkFilter(filter) : undefined;
+    /**
+     * Odstranění undefined hodnot v objektu filtru.
+     */
+    filter = Object.fromEntries(Object.entries(filter ?? {}).filter(([_,value]) => value != undefined));
 
     for (let o of getPrototypeChain(obj)){
         for (let prop of Object.getOwnPropertyNames(o)){
-            if (!filter || isValid(o, prop, filter)){
+            if(isValid(o, prop, filter))
                 yield prop;
-            }
         }
     }
 }
@@ -39,19 +46,5 @@ function getPrototypeChain(obj){
  */
 function isValid(obj, prop, filter){
     let objectDescs = Object.getOwnPropertyDescriptor(obj, prop);
-    for (let filterDesc in filter){
-        if (objectDescs[filterDesc] !== filter[filterDesc])
-            return false; 
-    }
-    return true;
-}
-
-/**
- * Funkce, která odstraní z objektu filtrů všechny vlastnosti s hodnotou undefined
- * @param {Object} filter - Povinný parametr obsahujicí filtr popisovačů vlastností.
- * @returns {Object} Upravený filter, bez vlastností s hodnotou undefined
- */
-function checkFilter(filter){
-    Object.keys(filter).forEach(key => filter[key] === undefined && delete filter[key]);
-    return filter;
+    return Object.keys(filter).every((filterDesc) => objectDescs[filterDesc] == filter[filterDesc]);
 }
